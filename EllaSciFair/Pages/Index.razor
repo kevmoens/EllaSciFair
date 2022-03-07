@@ -1,8 +1,44 @@
 @page "/"
-
+@page "/{MyNumber}"
+@using EllaSciFair.Data
+@inject ISignUpRepository repoSignUp
+@inject ITakeANumberRepository repoTakeANum
+@inject NavigationManager navMan
 <PageTitle>Ella Science Fair</PageTitle>
+@if (mySignup == null)
+{
+    <button @onclick="OnRegister">Register</button>
+}
+<h4>Current Numer: @takeANumber?.CurrentNumber</h4>
+@if (mySignup != null)
+{
+    @if (string.IsNullOrEmpty(mySignup?.FileName))
+    {
+            <h3>My Number: @mySignup?.Id </h3>
+    } else
+    {
+        <div>Video URL HERE</div>    
+    }
+}
 
-1. Sign Up
-2. Wait for notification to come to booth
-3. Get Recorded
-4. Wait for notification to download video
+@code {
+    public SignUp? mySignup;
+    public TakeANumber? takeANumber;
+    [Parameter]
+    public string? MyNumber { get; set; }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        int myNumber = 0;
+        if (int.TryParse(MyNumber, out myNumber))
+        {
+            mySignup = repoSignUp.GetSignUp(myNumber);
+        }
+        takeANumber = repoTakeANum.Get();
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+    void OnRegister()
+    {
+        navMan.NavigateTo("register");
+    }
+}

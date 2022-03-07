@@ -7,8 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddSingleton<WeatherForecastService>();
-
+builder.Services.AddTransient<SignUpContext, SignUpContext>();
+builder.Services.AddScoped<ITakeANumberRepository, TakeANumberRepository>();
+builder.Services.AddScoped<ISignUpRepository, SignUpRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
