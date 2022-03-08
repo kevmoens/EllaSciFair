@@ -1,0 +1,39 @@
+@page "/main"
+@using EllaSciFair.Data
+@inject ISignUpRepository repoSignUp
+@inject ITakeANumberRepository repoTakeANum
+
+@if (SignupQueue != null)
+{
+    <table>
+        @foreach (var signUp in SignupQueue)
+        {
+            <tr>
+                <th>
+                    <a @onclick="@(()=> {OnSelectId(signUp);})">@signUp.Id</a>
+                </th>
+                <th>
+                    @signUp.Name
+                </th>
+                <th>
+                    @signUp.Email
+                </th>
+            </tr>
+        }
+    </table>
+}
+@code
+ {
+     List<SignUp>? SignupQueue;
+    protected override void OnAfterRender(bool firstRender)
+    {
+        SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
+
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+    void OnSelectId(SignUp signUp)
+    {
+
+    }
+}

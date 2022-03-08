@@ -1,6 +1,28 @@
 ﻿@page "/register"
+@using EllaSciFair.Data
+@inject ISignUpRepository repoSignUp
+@inject ITakeANumberRepository repoTakeANum
+@inject NavigationManager navMan
 <h3>Register</h3>
 
 @code {
+    SignUp? signUp;
+    string? Email;
+    string? Name;
+    void OnSignUp() 
+    {
+        if (string.IsNullOrEmpty(Email))
+        {
 
+        }
+        if (string.IsNullOrEmpty(Name))
+        {
+            
+        }
+        signUp = new SignUp();
+        signUp.Email = Email;
+        signUp.Name = Name;
+        var id = repoSignUp.Add(signUp);
+        navMan.NavigateTo($"/{id}");
+    }
 }

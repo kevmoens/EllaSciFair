@@ -2,9 +2,9 @@
 {
     public interface ISignUpRepository
     {
-        IList<SignUp>? GetSignUps();
+        IList<SignUp>? GetOpenSignUps();
         SignUp? GetSignUp(int Id);
-        void Add(SignUp signUp);
+        int Add(SignUp signUp);
         SignUp? Update(SignUp signUp);
         void Delete(SignUp signUp);
     }

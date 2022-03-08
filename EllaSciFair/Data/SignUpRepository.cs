@@ -10,7 +10,7 @@ namespace EllaSciFair.Data
             signUpContext = context;
         }
 
-        public void Add(SignUp signUp)
+        public int Add(SignUp signUp)
         {
             int? maxId = signUpContext.SignUps?.OrderByDescending( s => s.Id).FirstOrDefault()?.Id;
             if (maxId == null)
@@ -21,6 +21,7 @@ namespace EllaSciFair.Data
             signUp.Id = maxId.Value;
             signUpContext.Add(signUp);
             signUpContext.SaveChanges();
+            return maxId.Value;
         }
 
         public void Delete(SignUp signUp)
@@ -29,9 +30,12 @@ namespace EllaSciFair.Data
             signUpContext.SaveChanges();
         }
 
-        public IList<SignUp>? GetSignUps()
+        public IList<SignUp>? GetOpenSignUps()
         {
-            return signUpContext.SignUps?.ToList();
+            return signUpContext.SignUps?
+                .Where(r =>  string.IsNullOrEmpty(r.FileName))
+                .OrderBy(r => r.Id)
+                .ToList();
         }
 
         public SignUp? GetSignUp(int Id)
