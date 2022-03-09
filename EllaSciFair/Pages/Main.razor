@@ -3,6 +3,15 @@
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 
+@if (CurrentPerson != null)
+{
+    <p>
+        <h1>@CurrentPerson.Email</h1>
+        <h1>@CurrentPerson.Name</h1>
+        <h1>@CurrentPerson.Id</h1>
+        <button @onclick="OnRecordVideo">Start Recording</button>
+    </p>
+}
 @if (SignupQueue != null)
 {
     <table>
@@ -25,6 +34,7 @@
 @code
  {
      TakeANumber? takeANumber;
+     SignUp? CurrentPerson;
      List<SignUp>? SignupQueue;
     protected override void OnAfterRender(bool firstRender)
     {
@@ -39,8 +49,13 @@
         {
             return;
         }
+        CurrentPerson = signUp;
         takeANumber.CurrentNumber = signUp.Id;
         repoTakeANum.Update(takeANumber);
         StateHasChanged();
+    }
+    void OnRecordVideo() 
+    {
+        
     }
 }
