@@ -10,7 +10,7 @@
         {
             <tr>
                 <th>
-                    <a @onclick="@(()=> {OnSelectId(signUp);})">@signUp.Id</a>
+                    <a  href="javascript: void(0);" @onclick="@(()=> {OnSelectId(signUp);})">@signUp.Id</a>
                 </th>
                 <th>
                     @signUp.Name
@@ -24,16 +24,23 @@
 }
 @code
  {
+     TakeANumber? takeANumber;
      List<SignUp>? SignupQueue;
     protected override void OnAfterRender(bool firstRender)
     {
         SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
-
+        takeANumber = repoTakeANum.Get();
         base.OnAfterRender(firstRender);
         StateHasChanged();
     }
     void OnSelectId(SignUp signUp)
     {
-
+        if (takeANumber == null)
+        {
+            return;
+        }
+        takeANumber.CurrentNumber = signUp.Id;
+        repoTakeANum.Update(takeANumber);
+        StateHasChanged();
     }
 }

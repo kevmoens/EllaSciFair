@@ -1,23 +1,30 @@
 ﻿@page "/register"
 @using EllaSciFair.Data
+@using Models.Dialog
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 @inject NavigationManager navMan
 <h3>Register</h3>
-
+<input type="email" @bind-value="Email" placeholder="Email"/>
+<br/>
+<input type="text" @bind-value="Name" placeholder="Full Name"/>
+<br/>
+<button @onclick="OnSignUp">Register</button>
 @code {
     SignUp? signUp;
     string? Email;
     string? Name;
-    void OnSignUp() 
+    async void OnSignUp() 
     {
         if (string.IsNullOrEmpty(Email))
         {
-
+            await MsgBox.Show("Email is required.", "Error", DialogButtons.OK);
+            return;
         }
         if (string.IsNullOrEmpty(Name))
         {
-            
+            await MsgBox.Show("Name is required.", "Error", DialogButtons.OK);
+            return;
         }
         signUp = new SignUp();
         signUp.Email = Email;
