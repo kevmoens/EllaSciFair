@@ -1,27 +1,73 @@
 @page "/"
 @page "/{MyNumber}"
 @using EllaSciFair.Data
+@using EllaSciFair.Models.Index
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 @inject NavigationManager navMan
+<style>
+  body {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    place-items: center;
+    background-image: linear-gradient(#e60073, #33f);
+    height: 100vh;
+  }
+
+</style>
+
 <PageTitle>Ella Science Fair</PageTitle>
-@if (mySignup == null)
-{
-    <button @onclick="OnRegister">Register</button>
-}
-<h4>Current Numer: @takeANumber?.CurrentNumber</h4>
+
+    <div class="wrapper">
+      <div class="title">360 Photo Booth</div>
+      <EditForm Model="@formModel" OnValidSubmit="@OnRegister" action="#">
+          <div  class="signForm">
+          
 @if (mySignup != null)
 {
+        <div class="field">
+            <h4>Current Numer: @takeANumber?.CurrentNumber</h4>
+        </div>
     @if (string.IsNullOrEmpty(mySignup?.FileName))
     {
-            <h3>My Number: @mySignup?.Id </h3>
+        <h3>My Number: @mySignup?.Id </h3>
     } else
     {
         <div>Video URL HERE</div>    
     }
 }
+        <div class="field">
+          <input type="Email" required>
+          <label>Email Address</label>
+        </div>
+        <div class="field">
+          <input type="password" required>
+          <label>Password</label>
+        </div>
+        <div class="content">
+          <div class="checkbox">
+            <input type="checkbox" id="remember-me">
+            <label for="remember-me">Remember me</label>
+          </div>
+          <div class="pass-link"><a href="#">Forgot password?</a></div>
+        </div>
+                
+@if (mySignup == null)
+{
+        <div class="field">
+          <input type="submit" value="Register">
+        </div>
+}
+        <div class="signup-link">Not a member? <a href="#">Signup now</a></div>
+        </div>
+      </EditForm>
+    </div>
+
+
 
 @code {
+    IndexFormModel formModel = new IndexFormModel();
     public SignUp? mySignup;
     public TakeANumber? takeANumber;
     [Parameter]
