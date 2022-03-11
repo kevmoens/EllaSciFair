@@ -1,7 +1,13 @@
 @page "/main"
 @using EllaSciFair.Data
+@using System.Threading.Tasks
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
+<style>
+  body {
+    background-image: linear-gradient(#e60073, #33f);
+  }
+</style>
 
 @if (CurrentPerson != null)
 {
@@ -32,10 +38,10 @@
     </table>
 }
 @code
- {
-     TakeANumber? takeANumber;
-     SignUp? CurrentPerson;
-     List<SignUp>? SignupQueue;
+{
+    TakeANumber? takeANumber;
+    SignUp? CurrentPerson;
+    List<SignUp>? SignupQueue;
     protected override void OnAfterRender(bool firstRender)
     {
         SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
@@ -54,8 +60,16 @@
         repoTakeANum.Update(takeANumber);
         StateHasChanged();
     }
-    void OnRecordVideo() 
+    async void OnRecordVideo() 
     {
-        
+        if (CurrentPerson == null)
+        {
+            return;
+        }
+        await Task.Delay(1500);
+        CurrentPerson.FileName = "done";
+        repoSignUp.Update(CurrentPerson);
+        SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
+        StateHasChanged();
     }
 }
