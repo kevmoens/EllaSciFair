@@ -106,7 +106,7 @@
     }
 
     .signForm .content .pass-link {
-        color: "";
+        color: transparent;
     }
 
 .signForm .field input[type="submit"] {

@@ -29,7 +29,10 @@
         <h1>@CurrentPerson.Name</h1>
         <h1>@CurrentPerson.Id</h1>
         <button @onclick="OnRecordVideo">Start Recording</button>
-        <progress value="@progress" max="100"/>
+        @if (isRecording)
+        {
+            <progress value="@progress" max="100"/>
+        }
         @if (!string.IsNullOrEmpty(CurrentPerson.FileName))
         {
             <h1>DONE</h1>
