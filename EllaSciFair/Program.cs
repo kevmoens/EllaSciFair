@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddTransient<SignUpContext, SignUpContext>();
-builder.Services.AddScoped<ITakeANumberRepository, TakeANumberRepository>();
-builder.Services.AddScoped<ISignUpRepository, SignUpRepository>();
+builder.Services.AddTransient<ITakeANumberRepository, TakeANumberRepository>();
+builder.Services.AddTransient<ISignUpRepository, SignUpRepository>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

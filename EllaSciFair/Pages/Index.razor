@@ -1,6 +1,7 @@
 @page "/"
 @page "/{MyNumber}"
 @using EllaSciFair.Data
+@using EllaSciFair.Models.Dialog
 @using EllaSciFair.Models.Index
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
@@ -27,39 +28,44 @@
 @if (mySignup != null)
 {
         <div class="field">
-            <h4>Current Numer: @takeANumber?.CurrentNumber</h4>
+            <h4>Current Person's Number: @takeANumber?.CurrentNumber</h4>
         </div>
     @if (string.IsNullOrEmpty(mySignup?.FileName))
     {
-        <h3>My Number: @mySignup?.Id </h3>
+        <h3>Your Number: @mySignup?.Id </h3>
     } else
     {
         <div>Video URL HERE</div>    
     }
-}
-        <div class="field">
-          <input type="Email" required>
-          <label>Email Address</label>
-        </div>
-        <div class="field">
-          <input type="password" required>
-          <label>Password</label>
-        </div>
-        <div class="content">
-          <div class="checkbox">
-            <input type="checkbox" id="remember-me">
-            <label for="remember-me">Remember me</label>
-          </div>
-          <div class="pass-link"><a href="#">Forgot password?</a></div>
-        </div>
-                
+}              
 @if (mySignup == null)
 {
-        <div class="field">
-          <input type="submit" value="Register">
-        </div>
+            <div class="field">
+              <h1>Sign Up</h1>
+            </div>
+            <div class="field">
+              <input type="text" required @bind-value="@formModel.Name">
+              <label>Name</label>
+            </div>
+            <div class="field">
+              <input type="Email" required @bind-value="@formModel.Email">
+              <label>Email Address</label>
+            </div>
+          
+            <div class="field">
+                <input type="submit" value="Register">
+            </div>
+} else
+{                 
+    
+            <div class="field">
+                <input type="button" @onclick="OnNewSignup" value="New Sign In">
+            </div>
+            
+            <div class="field">
+                <input type="button" @onclick="OnRefresh" value="Refresh">
+            </div>
 }
-        <div class="signup-link">Not a member? <a href="#">Signup now</a></div>
         </div>
       </EditForm>
     </div>
@@ -70,21 +76,50 @@
     IndexFormModel formModel = new IndexFormModel();
     public SignUp? mySignup;
     public TakeANumber? takeANumber;
+    public Timer? timer;    
+
     [Parameter]
     public string? MyNumber { get; set; }
-    protected override void OnAfterRender(bool firstRender)
+    protected override void OnInitialized()
     {
+
         int myNumber = 0;
         if (int.TryParse(MyNumber, out myNumber))
         {
             mySignup = repoSignUp.GetSignUp(myNumber);
         }
         takeANumber = repoTakeANum.Get();
-        base.OnAfterRender(firstRender);
+        base.OnInitialized();
         StateHasChanged();
     }
-    void OnRegister()
+
+    async void OnRegister()
     {
-        navMan.NavigateTo("register");
+        if (string.IsNullOrEmpty(formModel.Email))
+        {
+            await MsgBox.Show("Email is required.", "Error", DialogButtons.OK);
+            return;
+        }
+        if (string.IsNullOrEmpty(formModel.Name))
+        {
+            await MsgBox.Show("Name is required.", "Error", DialogButtons.OK);
+            return;
+        }
+        mySignup = new SignUp();
+        mySignup.Email = formModel.Email;
+        mySignup.Name = formModel.Name;
+        var id = repoSignUp.Add(mySignup);
+        mySignup.Id = id;
+        StateHasChanged();
+    }
+    void OnNewSignup()
+    {
+        mySignup = null;
+        formModel = new IndexFormModel();
+        StateHasChanged();
+    }
+    void OnRefresh()
+    {        
+        navMan.NavigateTo($"/{mySignup?.Id}", true);
     }
 }

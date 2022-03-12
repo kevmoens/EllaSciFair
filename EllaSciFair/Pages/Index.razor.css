@@ -142,3 +142,14 @@
             text-decoration: underline;
         }
 
+    .signForm .field input[type="button"] {
+        color: #fff;
+        border: none;
+        padding-left: 0;
+        margin-top: -10px;
+        font-size: 20px;
+        font-weight: 500;
+        cursor: pointer;
+        background: linear-gradient(-135deg, #c850c0, #4158d0);
+        transition: all 0.3s ease;
+    }
