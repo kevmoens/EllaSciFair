@@ -6,6 +6,7 @@
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 @inject NavigationManager navMan
+@inject IJSRuntime JS
 <style>
   body {
     display: grid;
@@ -47,7 +48,12 @@
         <h3>Your Number: @mySignup?.Id </h3>
     } else
     {
-        <div>Video URL HERE</div>    
+        <div>Your Video has been procesed.</div>   
+        <div>Please wait for your email.</div>   
+        <div class="field">
+            <input type="button" @onclick="DownloadFileFromStream" value="Download">
+        </div>
+        <div> @errMsg</div>
     }
 }              
 @if (mySignup == null)
@@ -89,12 +95,14 @@
     public SignUp? mySignup;
     public TakeANumber? takeANumber;
     public Timer? timer;    
+    public string errMsg;
 
     [Parameter]
     public string? MyNumber { get; set; }
     protected override void OnInitialized()
     {
 
+        errMsg = "";
         int myNumber = 0;
         if (int.TryParse(MyNumber, out myNumber))
         {
@@ -122,16 +130,41 @@
         mySignup.Name = formModel.Name;
         var id = repoSignUp.Add(mySignup);
         mySignup.Id = id;
+        errMsg = "";
         StateHasChanged();
     }
     void OnNewSignup()
     {
         mySignup = null;
         formModel = new IndexFormModel();
+        errMsg = "";
         StateHasChanged();
     }
     void OnRefresh()
     {        
         navMan.NavigateTo($"/{mySignup?.Id}", true);
+    }
+    
+
+    private async Task DownloadFileFromStream()
+    {
+        try 
+        {   
+            using (FileStream fsSource = new FileStream($"/home/pi/Videos/{mySignup?.Id}.mp4",
+                FileMode.Open, FileAccess.Read))
+            {
+                var fileName = $"{mySignup?.Id}.mp4";
+
+                using var streamRef = new DotNetStreamReference(stream: fsSource);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+                errMsg = "Download Complete";
+                StateHasChanged();
+            }
+        } catch (Exception ex)
+        {
+            errMsg = ex.Message;
+            StateHasChanged();
+        }
     }
 }

@@ -99,7 +99,7 @@
         var isLinux=System.Runtime.InteropServices.RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
         if (isLinux)
         {
-            RecordVideo();
+            await RecordVideo();
         } else
         {
             for (int i = 0; i < 10; i++)
@@ -116,8 +116,19 @@
         isRecording = false;
         StateHasChanged();
     }
-    void RecordVideo()
+    async Task RecordVideo()
     {
+
+        progress = 1;
+        StateHasChanged();
+
+        await Task.Delay(100);
+        var dir = new System.IO.DirectoryInfo("/home/pi/Documents/console2/temp");
+        foreach (var file in dir.GetFiles("*.mp4", SearchOption.AllDirectories))
+        {
+            file.Delete();
+        }
+
         if (!System.IO.Directory.Exists("/home/pi/Documents/console2/temp"))
         {
             System.IO.Directory.CreateDirectory("/home/pi/Documents/console2/temp");
@@ -142,13 +153,14 @@
         proc.Start();
         proc.WaitForExit();
 
-        progress = 0;
+        progress = 2;
         StateHasChanged();
+        await Task.Delay(100);
     
         progress += 10;
         StateHasChanged();
+        await Task.Delay(100);
         
-        var dir = new System.IO.DirectoryInfo("/home/pi/Documents/console2/temp");
         var files =  dir.GetFiles("*.jpg");
         var first30 = files.OrderBy(f => f.Name).Take(60);
         var slowfiles = files.OrderBy(f => f.Name).Skip(60).Take(190);
@@ -168,6 +180,7 @@
 
         progress += 10;
         StateHasChanged();
+        await Task.Delay(100);
         
         var proc1 = new System.Diagnostics.Process();
         proc1.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/1";
@@ -183,6 +196,7 @@
 
         progress += 10;
         StateHasChanged();
+        await Task.Delay(100);
         
         var proc2 = new System.Diagnostics.Process();
         proc2.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/2";
@@ -201,6 +215,7 @@
 
         progress += 10;
         StateHasChanged();
+        await Task.Delay(100);
         
         var proc3 = new System.Diagnostics.Process();
         proc3.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/3";
@@ -240,7 +255,10 @@
         procJoin.Start();
         procJoin.WaitForExit();
 
+        System.IO.File.Move("/home/pi/Documents/console2/temp/output.mp4",$"/home/pi/Videos/{CurrentPerson.Id}.mp4");
+
         progress = 100;
         StateHasChanged();
+        await Task.Delay(100);
     }
 }
