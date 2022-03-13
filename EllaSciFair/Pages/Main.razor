@@ -228,7 +228,10 @@
 
         progress += 10;
         StateHasChanged();
-        
+        string concatFiles = "file '/home/pi/Documents/console2/temp/output1.mp4'";
+        concatFiles += System.Environment.NewLine + "file '/home/pi/Documents/console2/temp/output2.mp4'";
+        concatFiles += System.Environment.NewLine + "file '/home/pi/Documents/console2/temp/output3.mp4'";
+        System.IO.File.WriteAllText("/home/pi/Documents/console2/temp/fileList.txt", concatFiles);
 
         var procJoin = new System.Diagnostics.Process();
         procJoin.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp";
