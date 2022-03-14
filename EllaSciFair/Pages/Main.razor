@@ -29,6 +29,7 @@
         <h1>@CurrentPerson.Email</h1>
         <h1>@CurrentPerson.Name</h1>
         <h1>@CurrentPerson.Id</h1>
+        <InputCheckbox @bind-Value="@rotate"/>
         <button @onclick="OnRecordVideo">Start Recording</button>
         @if (isRecording)
         {
@@ -61,11 +62,12 @@
 }
 @code
 {
-    TakeANumber? takeANumber;
-    SignUp? CurrentPerson;
-    List<SignUp>? SignupQueue;
-    int progress = 0;
-    bool isRecording;
+        TakeANumber? takeANumber;
+        SignUp? CurrentPerson;
+        List<SignUp>? SignupQueue;
+        int progress = 0;
+        bool isRecording;
+    bool rotate;
     protected override void OnAfterRender(bool firstRender)
     {
         SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
@@ -85,7 +87,7 @@
         isRecording = false;
         StateHasChanged();
     }
-    async void OnRecordVideo() 
+    async void OnRecordVideo()
     {
         isRecording = true;
         progress = 0;
@@ -111,7 +113,7 @@
         }
 
         CurrentPerson.FileName = "done";
-        repoSignUp.Update(CurrentPerson);        
+        repoSignUp.Update(CurrentPerson);
         SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
         isRecording = false;
         StateHasChanged();
@@ -156,11 +158,11 @@
         progress = 2;
         StateHasChanged();
         await Task.Delay(100);
-    
+
         progress += 10;
         StateHasChanged();
         await Task.Delay(100);
-        
+
         var files =  dir.GetFiles("*.jpg");
         var first30 = files.OrderBy(f => f.Name).Take(60);
         var slowfiles = files.OrderBy(f => f.Name).Skip(60).Take(190);
@@ -181,7 +183,7 @@
         progress += 10;
         StateHasChanged();
         await Task.Delay(100);
-        
+
         var proc1 = new System.Diagnostics.Process();
         proc1.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/1";
         proc1.StartInfo.FileName = "ffmpeg";
@@ -197,7 +199,7 @@
         progress += 10;
         StateHasChanged();
         await Task.Delay(100);
-        
+
         var proc2 = new System.Diagnostics.Process();
         proc2.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/2";
         proc2.StartInfo.FileName = "ffmpeg";
@@ -216,7 +218,7 @@
         progress += 10;
         StateHasChanged();
         await Task.Delay(100);
-        
+
         var proc3 = new System.Diagnostics.Process();
         proc3.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp/3";
         proc3.StartInfo.FileName = "ffmpeg";
@@ -248,10 +250,16 @@
         concatFiles += System.Environment.NewLine + "file '/home/pi/Documents/console2/temp/output3.mp4'";
         System.IO.File.WriteAllText("/home/pi/Documents/console2/temp/fileList.txt", concatFiles);
 
+        var rotateText = "";
+        if (rotate)
+        {
+            rotateText = " -metadata:s:v rotate=\"-180\" ";
+        }
+
         var procJoin = new System.Diagnostics.Process();
         procJoin.StartInfo.WorkingDirectory = "/home/pi/Documents/console2/temp";
         procJoin.StartInfo.FileName = "ffmpeg";
-        procJoin.StartInfo.Arguments = "-safe 0 -f concat -i fileList.txt -c copy output.mp4";
+        procJoin.StartInfo.Arguments = $"-safe 0 -f concat -i fileList.txt {rotateText} -c copy output.mp4";
         procJoin.Start();
         procJoin.WaitForExit();
 
