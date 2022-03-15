@@ -29,7 +29,7 @@
         <h1>@CurrentPerson.Email</h1>
         <h1>@CurrentPerson.Name</h1>
         <h1>@CurrentPerson.Id</h1>
-        <InputCheckbox @bind-Value="@rotate"/>
+        <h4>Rotate <input type="checkbox" @bind="@rotate"/></h4>
         <button @onclick="OnRecordVideo">Start Recording</button>
         @if (isRecording)
         {
