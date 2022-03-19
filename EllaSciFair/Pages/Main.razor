@@ -4,24 +4,6 @@
 @using System.Runtime.InteropServices
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
-<style>
-  body {
-    background-image: linear-gradient(#e60073, #33f);
-    height: 100vh;
-  }
-  button {
-        border-radius: 25px;
-        color: #fff;
-        border: none;
-        padding: 10px;
-        margin: 10px;
-        font-size: 20px;
-        font-weight: 500;
-        cursor: pointer;
-        background: linear-gradient(-135deg, #c850c0, #4158d0);
-        transition: all 0.3s ease;
-    }
-</style>
 
 @if (CurrentPerson != null)
 {
@@ -29,7 +11,8 @@
         <h1>@CurrentPerson.Email</h1>
         <h1>@CurrentPerson.Name</h1>
         <h1>@CurrentPerson.Id</h1>
-        <InputCheckbox @bind-Value="@rotate"/>
+        
+        <div><input type="checkbox" checked="@rotate" />Rotate</div>
         <button @onclick="OnRecordVideo">Start Recording</button>
         @if (isRecording)
         {
