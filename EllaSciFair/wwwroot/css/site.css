@@ -62,7 +62,7 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
-
+/* signup and register page */
     body {
         display: grid;
         height: 100%;
@@ -231,3 +231,20 @@ a, .btn-link {
                 background: linear-gradient(-135deg, #c850c0, #4158d0);
                 transition: all 0.3s ease;
             }
+
+/* main page List of people in the queue */
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd;
+}
