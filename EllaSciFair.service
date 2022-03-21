@@ -1,0 +1,20 @@
+[Unit]
+Description=EllaSciFair
+
+[Service]
+#WorkingDirectory=/home/pi/Documents/EllaSciFair/EllaSciFair/bin/Debug/net6.0
+#ExecStart=/opt/dotnet/dotnet /home/pi/Documents/EllaSciFair/EllaSciFair/bin/Debug/net6.0/EllaSciFair.dll
+WorkingDirectory=/var/www/EllaSciFair
+ExecStart=/var/www/EllaSciFair/EllaSciFair
+Restart=always
+# Restart Service after 10 seconds if the dotnet service crashes:
+RestartSec=10
+User=pi
+SyslogIdentifier=EllaSciFair
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/games:/usr/games:/opt/dotnet
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://localhost:5000
+Environment=DOTNET_ROOT=/opt/dotnet 
+
+[Install]
+WantedBy=multi-user.target
