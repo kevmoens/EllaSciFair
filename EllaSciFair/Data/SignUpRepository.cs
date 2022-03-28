@@ -44,6 +44,13 @@ namespace EllaSciFair.Data
                 .OrderBy(r => r.Id)
                 .ToList();
         }
+        public IList<SignUp>? GetCompletedSignUps()
+        {
+            return signUpContext.SignUps?
+                .Where(r => !string.IsNullOrEmpty(r.FileName))
+                .OrderBy(r => r.Id)
+                .ToList();
+        }
 
         public IList<SignUp>? GetPublicSignups()
         {

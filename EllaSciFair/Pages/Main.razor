@@ -1,7 +1,9 @@
 @page "/main"
 @using EllaSciFair.Data
+@using System.Net.Mail;
 @using System.Threading.Tasks
 @using System.Runtime.InteropServices
+@using EllaSciFair.Models.Dialog
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 
@@ -14,17 +16,17 @@
         
         <h4>Rotate<input type="checkbox" checked="@rotate" /></h4>
         <button @onclick="OnRecordVideo">Start Recording</button>
-        @if (isRecording)
-        {
-            <progress value="@progress" max="100"/>
-        }
         @if (!string.IsNullOrEmpty(CurrentPerson.FileName))
         {
             <h1>DONE</h1>
         }
     </p>
 }
-@if (SignupQueue != null)
+@if (isRecording)
+{
+    <progress value="@progress" max="100"/>
+}
+@if (SignupQueue != null && SignupQueue.Count > 0)
 {
     <table>
         @foreach (var signUp in SignupQueue)
@@ -42,15 +44,17 @@
             </tr>
         }
     </table>
+
+    <a  href="javascript: void(0);" @onclick="@(()=> {OnEmailAllCompleted();})">Email All</a>
 }
 @code
 {
-        TakeANumber? takeANumber;
-        SignUp? CurrentPerson;
-        List<SignUp>? SignupQueue;
-        int progress = 0;
-        bool isRecording;
-    bool rotate;
+    TakeANumber? takeANumber;
+    SignUp? CurrentPerson;
+    List<SignUp>? SignupQueue;
+    int progress = 0;
+    bool isRecording;
+    bool rotate = true;
     protected override void OnAfterRender(bool firstRender)
     {
         SignupQueue = repoSignUp?.GetOpenSignUps()?.ToList();
@@ -252,4 +256,69 @@
         StateHasChanged();
         await Task.Delay(100);
     }
+
+    public async void OnEmailAllCompleted()
+    {
+
+        var completedSignups = repoSignUp?.GetCompletedSignUps()?.ToList();
+        if (completedSignups == null)
+        {
+            var tcsNone = new TaskCompletionSource<string>();
+            PubSub.Hub.Default.Publish<MsgBoxShowEvent>(
+                new MsgBoxShowEvent() 
+                { 
+                    Buttons = DialogButtons.OK
+                    , Message = "There are no emails to send."
+                    , Title = "Email All"
+                    , CompletionSource = tcsNone 
+                });
+            await tcsNone.Task;
+            return;
+        }
+        isRecording = true;
+        progress = 0;
+        int idx = 0;
+        StateHasChanged();
+        foreach (var signup in completedSignups)
+        {
+
+            idx++;
+            progress = (int)((idx * 100) / (completedSignups.Count * 100));
+            StateHasChanged();
+            if (signup.Email == null)
+            {
+                continue;
+            }
+            EmailVideo(signup.Id, signup.Email);
+        }
+        isRecording = false;
+        StateHasChanged();
+
+        var tcs = new TaskCompletionSource<string>();
+        PubSub.Hub.Default.Publish<MsgBoxShowEvent>(
+            new MsgBoxShowEvent() 
+            { 
+                Buttons = DialogButtons.OK
+                , Message = $"{completedSignups.Count} emails sent."
+                , Title = "Email All"
+                , CompletionSource = tcs 
+            });
+        await tcs.Task;
+    }
+    //Implement Gmail Relay
+    //https://www.youtube.com/watch?v=ql5Dex4m40w
+    public void EmailVideo(int Id, string emailAddress)
+    {
+        SmtpClient client = new SmtpClient("smtp.gmail.com", 587);
+        client.Credentials = new System.Net.NetworkCredential("our.simple.humor@gmail.com", "fpjjhtwyhfxuqzzz");
+        client.EnableSsl = true;
+        MailMessage message = new MailMessage();
+        message.From = new MailAddress("our.simple.humor@gmail.com");
+        message.To.Add(emailAddress);
+        message.Subject = "Your 360 Photo Booth Video";
+        message.Body = $"Visit our YouTube Channel Our.Simple.Humor {Environment.NewLine} https://www.youtube.com/channel/UCOW9gIJoAhWP45f1xag9-PA";
+        message.Attachments.Add(new Attachment($"/home/pi/Videos/{Id}.mp4"));
+        client.Send(message);
+    }
+
 }
