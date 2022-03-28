@@ -3,65 +3,73 @@
 @using EllaSciFair.Data
 @using EllaSciFair.Models.Dialog
 @using EllaSciFair.Models.Index
+@using HashidsNet;
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 @inject NavigationManager navMan
 @inject IJSRuntime JS
+@inject IHashids hashIds
 
 <PageTitle>Ella Science Fair</PageTitle>
 
     <div class="wrapper">
       <div class="title">360 Photo Booth</div>
       <EditForm Model="@formModel" OnValidSubmit="@OnRegister" action="#">
-          <div  class="signForm">
-          
-@if (mySignup != null)
-{
-        <div class="field">
-            <h4>Current Person's Number: @takeANumber?.CurrentNumber</h4>
-        </div>
-    @if (string.IsNullOrEmpty(mySignup?.FileName))
-    {
-        <h3>Your Number: @mySignup?.Id </h3>
-    } else
-    {
-        <div>Your Video has been procesed.</div>   
-        <div>Please wait for your email.</div>   
-        <div class="field">
-            <input type="button" @onclick="DownloadFileFromStream" value="Download">
-        </div>
-        <div> @errMsg</div>
-    }
-}              
-@if (mySignup == null)
-{
-            <div class="field">
-              <h1>Sign Up</h1>
-            </div>
-            <div class="field">
-              <input type="text" required @bind-value="@formModel.Name">
-              <label>Name</label>
-            </div>
-            <div class="field">
-              <input type="Email" required @bind-value="@formModel.Email">
-              <label>Email Address</label>
-            </div>
-          
-            <div class="field">
-                <input type="submit" value="Register">
-            </div>
-} else
-{                 
-    
-            <div class="field">
-                <input type="button" @onclick="OnNewSignup" value="New Sign In">
-            </div>
-            
-            <div class="field">
-                <input type="button" @onclick="OnRefresh" value="Refresh">
-            </div>
-}
-        </div>
+          <div class="signForm">
+
+              @if (mySignup != null)
+              {
+                  <div class="field">
+                      <h4>Current Person's Number: @takeANumber?.CurrentNumber</h4>
+                  </div>
+                  @if (string.IsNullOrEmpty(mySignup?.FileName))
+                  {
+                      <h3>Your Number: @mySignup?.Id </h3>
+                  }
+                  else
+                  {
+                      <div>Your Video has been procesed.</div>
+                      <div>Please wait for your email.</div>
+                      <div class="field">
+                          <input type="button" @onclick="DownloadFileFromStream" value="Download">
+                      </div>
+                      <div> @errMsg</div>
+                  }
+              }
+              @if (mySignup == null)
+              {
+                  <div class="field">
+                      <h1>Sign Up</h1>
+                  </div>
+                  <div class="field">
+                      <input type="text" required @bind-value="@formModel.Name">
+                      <label>Name</label>
+                  </div>
+                  <div class="field">
+                      <input type="Email" required @bind-value="@formModel.Email">
+                      <label>Email Address</label>
+                  </div>
+
+                  <div class="field">
+                      <input type="checkbox" @bind-vaue="@formModel.IsPublic" />
+                  </div>
+
+                  <div class="field">
+                      <input type="submit" value="Register">
+                  </div>
+              }
+              else
+              {
+
+                  <div class="field">
+                      <input type="button" @onclick="OnNewSignup" value="New Sign In">
+                  </div>
+
+                  <div class="field">
+                      <input type="button" @onclick="OnRefresh" value="Refresh">
+                  </div>
+              }
+          </div>
       </EditForm>
     </div>
 
@@ -74,8 +82,27 @@
     public Timer? timer;    
     public string errMsg;
 
+    private string? myNumber;
     [Parameter]
-    public string? MyNumber { get; set; }
+    public string? MyNumber
+    {
+        get { return myNumber; }
+        set
+        {
+            myNumber = value;
+            var rawIds = hashIds.Decode(value);
+            if (rawIds.Length == 0)
+            {
+                int newValue = 0;
+                if (int.TryParse(value, out newValue))
+                {
+                    myNumber = newValue.ToString();
+                }
+                return;
+            }
+            myNumber = rawIds[0].ToString();
+        }
+    }
     protected override void OnInitialized()
     {
 
@@ -102,12 +129,21 @@
             await MsgBox.Show("Name is required.", "Error", DialogButtons.OK);
             return;
         }
+        errMsg = "";
+        var mySignUp = repoSignUp.GetEmailSignup(formModel.Email);
+        if (mySignup != null)
+        {
+            //Found Match
+            StateHasChanged();
+            return;
+        }
+
         mySignup = new SignUp();
         mySignup.Email = formModel.Email;
         mySignup.Name = formModel.Name;
+        mySignup.IsPublic = formModel.IsPublic ?? false;
         var id = repoSignUp.Add(mySignup);
         mySignup.Id = id;
-        errMsg = "";
         StateHasChanged();
     }
     void OnNewSignup()
@@ -118,8 +154,12 @@
         StateHasChanged();
     }
     void OnRefresh()
-    {        
-        navMan.NavigateTo($"/{mySignup?.Id}", true);
+    {
+        if (mySignup?.Id == null)
+        {
+            return;
+        }
+        navMan.NavigateTo($"/{hashIds.Encode(mySignup.Id)}", true);
     }
     
 

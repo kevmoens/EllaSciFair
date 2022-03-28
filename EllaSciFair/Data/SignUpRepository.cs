@@ -10,6 +10,13 @@ namespace EllaSciFair.Data
             signUpContext = context;
         }
 
+        public SignUp? GetEmailSignup(string email)
+        {
+            return signUpContext.SignUps?
+                .Where(r => r.Email != null && r.Email.ToUpper() == email.ToUpper())
+                .FirstOrDefault();
+        }
+
         public int Add(SignUp signUp)
         {
             int? maxId = signUpContext.SignUps?.OrderByDescending( s => s.Id).FirstOrDefault()?.Id;
@@ -34,6 +41,14 @@ namespace EllaSciFair.Data
         {
             return signUpContext.SignUps?
                 .Where(r =>  string.IsNullOrEmpty(r.FileName))
+                .OrderBy(r => r.Id)
+                .ToList();
+        }
+
+        public IList<SignUp>? GetPublicSignups()
+        {
+            return signUpContext.SignUps?
+                .Where(r => r.IsPublic)
                 .OrderBy(r => r.Id)
                 .ToList();
         }

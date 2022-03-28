@@ -13,6 +13,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="6.0.2" />
     <PackageReference Include="PubSub" Version="4.0.2" />
+    <PackageReference Include="Hashids.net" Version="1.4.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="Hashids.net" />
+  </ItemGroup>
 </Project>

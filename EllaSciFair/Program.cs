@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using EllaSciFair.Data;
+using HashidsNet;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +11,7 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddTransient<SignUpContext, SignUpContext>();
 builder.Services.AddTransient<ITakeANumberRepository, TakeANumberRepository>();
 builder.Services.AddTransient<ISignUpRepository, SignUpRepository>();
+builder.Services.AddTransient<IHashids, Hashids>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
