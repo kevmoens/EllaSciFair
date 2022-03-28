@@ -250,7 +250,7 @@
         procJoin.Start();
         procJoin.WaitForExit();
 
-        System.IO.File.Move("/home/pi/Documents/console2/temp/output.mp4",$"/home/pi/Videos/{CurrentPerson.Id}.mp4");
+        System.IO.File.Move("/home/pi/Documents/console2/temp/output.mp4",$"/home/pi/Videos/{CurrentPerson?.Id}.mp4");
 
         progress = 100;
         StateHasChanged();
