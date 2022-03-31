@@ -63,14 +63,16 @@ a, .btn-link {
         content: "An error has occurred."
     }
 /* signup and register page */
-    body {
-        display: grid;
-        height: 100%;
-        width: 100%;
-        place-items: center;
-        background-image: linear-gradient(#e60073, #33f);
-        height: 100vh;
-      }
+body {
+    display: grid;
+    height: 100%;
+    width: 100%;
+    place-items: center;
+    background-image: linear-gradient(#e60073, #33f);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    height: 100vh;
+}
       button {
             border-radius: 25px;
             color: #fff;
@@ -131,11 +133,23 @@ a, .btn-link {
                             border-color: #4158d0;
                         }
         
-                    .wrapper .signForm .field label {
+                    .wrapper .signForm .field .fieldlabel {
                         position: absolute;
                         top: 50%;
                         left: 20px;
                         color: #999999;
+                        font-weight: 400;
+                        font-size: 17px;
+                        pointer-events: none;
+                        transform: translateY(-50%);
+                        transition: all 0.3s ease;
+                    }
+
+                    .wrapper .signForm .field .cblabel {
+                        position: absolute;
+                        top: 50%;
+                        left: 30px;
+                        color: #000000;
                         font-weight: 400;
                         font-size: 17px;
                         pointer-events: none;
@@ -147,14 +161,22 @@ a, .btn-link {
             padding: 10px 30px 50px 30px;
         }
         
-        .signForm .field input:focus ~ label,
-        .signForm .field input:valid ~ label {
+        .signForm .field input:focus ~ .fieldlabel,
+        .signForm .field input:valid ~ .fieldlabel {
             top: 0%;
             font-size: 16px;
             color: #4158d0;
             background: #fff;
             transform: translateY(-50%);
         }
+/*        .signForm .field input:focus ~ .cblabel,
+        .signForm .field input:valid ~ .cblabel {
+            top: 0%;
+            font-size: 16px;
+            color: #4158d0;
+            background: #fff;
+            transform: translateY(-50%);
+        }*/
         
         .signForm .content {
             display: flex;
@@ -177,7 +199,12 @@ a, .btn-link {
                 background: red;
             }
         
-            .signForm .content label {
+            .signForm .content .fieldlabel {
+                color: #262626;
+                user-select: none;
+                padding-left: 5px;
+            }
+            .signForm .content .cblabel {
                 color: #262626;
                 user-select: none;
                 padding-left: 5px;
@@ -240,11 +267,15 @@ table {
 }
 
 td, th {
-    border: 1px solid #dddddd;
+    border: 1px solid #dddddd88;
     text-align: left;
     padding: 8px;
 }
 
 tr:nth-child(even) {
-    background-color: #dddddd;
+    background-color: #dddddd77;
+}
+
+tr:nth-child(odd) {
+    background-color: #dddddd44;
 }
