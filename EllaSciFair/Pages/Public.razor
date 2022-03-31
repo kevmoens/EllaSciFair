@@ -1,0 +1,63 @@
+﻿@page "/Public"
+@using EllaSciFair.Data
+@inject ISignUpRepository repoSignUp
+@inject IJSRuntime JS
+
+<h3>Public Videos</h3>
+if (SignupQueue != null)
+{
+    <table>
+        @foreach (var signUp in SignupQueue)
+        {
+            <tr>
+                <th>
+                    <a href="javascript: void(0);" @onclick="@(async ()=> {await OnDownload(signUp);})">@signUp.Name</a>
+                </th>
+            </tr>
+        }
+    </table>
+}
+<br />
+errMsg
+
+@code {
+    string? errMsg;
+    List<SignUp>? SignupQueue = new List<SignUp>();
+    protected override void OnAfterRender(bool firstRender)
+    {
+        var queue = repoSignUp?.GetPublicSignups()?.ToList();
+        if (queue == null)
+        {
+            SignupQueue = new List<SignUp>();
+            StateHasChanged();
+            return;
+        }
+        SignupQueue = queue;
+        base.OnAfterRender(firstRender);
+        StateHasChanged();
+    }
+
+
+    private async Task OnDownload(SignUp signUp)
+    {
+        try
+        {
+            using (FileStream fsSource = new FileStream($"/home/pi/Videos/{signUp?.Id}.mp4",
+                FileMode.Open, FileAccess.Read))
+            {
+                var fileName = $"{signUp?.Id}.mp4";
+
+                using var streamRef = new DotNetStreamReference(stream: fsSource);
+
+                await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+                errMsg = "Download Complete";
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            errMsg = ex.Message;
+            StateHasChanged();
+        }
+    }
+}
