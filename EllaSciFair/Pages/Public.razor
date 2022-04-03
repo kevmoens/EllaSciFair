@@ -4,35 +4,35 @@
 @inject IJSRuntime JS
 
 <h3>Public Videos</h3>
-if (SignupQueue != null)
+@if (PublicSignups != null)
 {
     <table>
-        @foreach (var signUp in SignupQueue)
+        @foreach (var signUp in PublicSignups)
         {
             <tr>
-                <th>
+                <td>
                     <a href="javascript: void(0);" @onclick="@(async ()=> {await OnDownload(signUp);})">@signUp.Name</a>
-                </th>
+                </td>
             </tr>
         }
     </table>
 }
 <br />
-errMsg
+@errMsg
 
 @code {
     string? errMsg;
-    List<SignUp>? SignupQueue = new List<SignUp>();
+    List<SignUp>? PublicSignups = new List<SignUp>();
     protected override void OnAfterRender(bool firstRender)
     {
         var queue = repoSignUp?.GetPublicSignups()?.ToList();
         if (queue == null)
         {
-            SignupQueue = new List<SignUp>();
+            PublicSignups = new List<SignUp>();
             StateHasChanged();
             return;
         }
-        SignupQueue = queue;
+        PublicSignups = queue;
         base.OnAfterRender(firstRender);
         StateHasChanged();
     }
