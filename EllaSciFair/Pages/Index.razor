@@ -15,7 +15,6 @@
         <div class="title">360 Photo Booth</div>
         <EditForm Model="@formModel" OnValidSubmit="@OnRegister" action="#">
             <div class="signForm">
-
                 @if (mySignup != null)
                 {
                     <div class="field">
@@ -42,16 +41,17 @@
                     </div>
                     <div class="field">
                         <input type="text" required @bind-value="@formModel.Name">
-                        <label>Name</label>
+                        <label class="fieldlabel">Full Name</label>
                     </div>
                     <div class="field">
                         <input type="Email" required @bind-value="@formModel.Email">
-                        <label>Email Address</label>
+                        <label class="fieldlabel">Email Address</label>
                     </div>
 
                     <div class="field">
-                            <input type="checkbox" @bind="@formModel.IsPublic" />
-                        </div>
+                        <input type="checkbox" @bind="@formModel.IsPublic">
+                        <label class="cblabel">Public</label>
+                    </div>
 
                     <div class="field">
                         <input type="submit" value="Register">
@@ -68,6 +68,10 @@
                         <input type="button" @onclick="OnRefresh" value="Refresh">
                     </div>
                 }
+
+                <div>
+                    <a href="/public">Public Videos</a>
+                </div>
             </div>
         </EditForm>
     </div>
