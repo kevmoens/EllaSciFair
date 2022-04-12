@@ -3,6 +3,7 @@ using System;
 using EllaSciFair.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EllaSciFair.Migrations
 {
     [DbContext(typeof(SignUpContext))]
-    partial class SignUpContextModelSnapshot : ModelSnapshot
+    [Migration("20220328014537_SignupIsPublic")]
+    partial class SignupIsPublic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "6.0.2");
@@ -29,9 +31,6 @@ namespace EllaSciFair.Migrations
 
                     b.Property<string>("FileName")
                         .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsPublic")
-                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Name")
                         .IsRequired()

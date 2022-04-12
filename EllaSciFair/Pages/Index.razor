@@ -1,147 +1,78 @@
 @page "/"
 @page "/{MyNumber}"
 @using EllaSciFair.Data
-@using EllaSciFair.Models.Dialog
-@using EllaSciFair.Models.Index
+@using EllaSciFair.Models
+@using HashidsNet
 @inject ISignUpRepository repoSignUp
 @inject ITakeANumberRepository repoTakeANum
 @inject NavigationManager navMan
 @inject IJSRuntime JS
+@inject IHashids hashIds
 
-<PageTitle>Ella Science Fair</PageTitle>
+    <PageTitle>Ella Science Fair</PageTitle>
 
     <div class="wrapper">
-      <div class="title">360 Photo Booth</div>
-      <EditForm Model="@formModel" OnValidSubmit="@OnRegister" action="#">
-          <div  class="signForm">
-          
-@if (mySignup != null)
-{
-        <div class="field">
-            <h4>Current Person's Number: @takeANumber?.CurrentNumber</h4>
-        </div>
-    @if (string.IsNullOrEmpty(mySignup?.FileName))
-    {
-        <h3>Your Number: @mySignup?.Id </h3>
-    } else
-    {
-        <div>Your Video has been procesed.</div>   
-        <div>Please wait for your email.</div>   
-        <div class="field">
-            <input type="button" @onclick="DownloadFileFromStream" value="Download">
-        </div>
-        <div> @errMsg</div>
-    }
-}              
-@if (mySignup == null)
-{
-            <div class="field">
-              <h1>Sign Up</h1>
+        <div class="title">360 Photo Booth</div>
+        <EditForm Model="@formModel" OnValidSubmit="@OnRegister" action="#">
+            <div class="signForm">
+                @if (mySignup != null)
+                {
+                    <div class="field">
+                        <h4>Current Person's Number: @takeANumber?.CurrentNumber</h4>
+                    </div>
+                    @if (string.IsNullOrEmpty(mySignup?.FileName))
+                    {
+                        <h3>Your Number: @mySignup?.Id </h3>
+                    }
+                    else
+                    {
+                        <div>Your Video has been procesed.</div>
+                        <div>Please wait for your email.</div>
+                        <div class="field">
+                            <input type="button" @onclick="DownloadFileFromStream" value="Download">
+                        </div>
+                        <div> @errMsg</div>
+                    }
+                }
+                @if (mySignup == null)
+                {
+                    <div class="field">
+                        <h1>Sign Up</h1>
+                    </div>
+                    <div class="field">
+                        <input type="text" required @bind-value="@formModel.Name">
+                        <label class="fieldlabel">Full Name</label>
+                    </div>
+                    <div class="field">
+                        <input type="Email" required @bind-value="@formModel.Email">
+                        <label class="fieldlabel">Email Address</label>
+                    </div>
+
+                    <div class="field">
+                        <input type="checkbox" @bind="@formModel.IsPublic">
+                        <label class="cblabel">Public</label>
+                    </div>
+
+                    <div class="field">
+                        <input type="submit" value="Register">
+                    </div>
+                }
+                else
+                {
+
+                    <div class="field">
+                        <input type="button" @onclick="OnNewSignup" value="New Sign In">
+                    </div>
+
+                    <div class="field">
+                        <input type="button" @onclick="OnRefresh" value="Refresh">
+                    </div>
+                }
+
+                <div>
+                    <a href="/public">Public Videos</a>
+                </div>
             </div>
-            <div class="field">
-              <input type="text" required @bind-value="@formModel.Name">
-              <label>Name</label>
-            </div>
-            <div class="field">
-              <input type="Email" required @bind-value="@formModel.Email">
-              <label>Email Address</label>
-            </div>
-          
-            <div class="field">
-                <input type="submit" value="Register">
-            </div>
-} else
-{                 
-    
-            <div class="field">
-                <input type="button" @onclick="OnNewSignup" value="New Sign In">
-            </div>
-            
-            <div class="field">
-                <input type="button" @onclick="OnRefresh" value="Refresh">
-            </div>
-}
-        </div>
-      </EditForm>
+        </EditForm>
     </div>
 
-
-
-@code {
-    IndexFormModel formModel = new IndexFormModel();
-    public SignUp? mySignup;
-    public TakeANumber? takeANumber;
-    public Timer? timer;    
-    public string errMsg;
-
-    [Parameter]
-    public string? MyNumber { get; set; }
-    protected override void OnInitialized()
-    {
-
-        errMsg = "";
-        int myNumber = 0;
-        if (int.TryParse(MyNumber, out myNumber))
-        {
-            mySignup = repoSignUp.GetSignUp(myNumber);
-        }
-        takeANumber = repoTakeANum.Get();
-        base.OnInitialized();
-        StateHasChanged();
-    }
-
-    async void OnRegister()
-    {
-        if (string.IsNullOrEmpty(formModel.Email))
-        {
-            await MsgBox.Show("Email is required.", "Error", DialogButtons.OK);
-            return;
-        }
-        if (string.IsNullOrEmpty(formModel.Name))
-        {
-            await MsgBox.Show("Name is required.", "Error", DialogButtons.OK);
-            return;
-        }
-        mySignup = new SignUp();
-        mySignup.Email = formModel.Email;
-        mySignup.Name = formModel.Name;
-        var id = repoSignUp.Add(mySignup);
-        mySignup.Id = id;
-        errMsg = "";
-        StateHasChanged();
-    }
-    void OnNewSignup()
-    {
-        mySignup = null;
-        formModel = new IndexFormModel();
-        errMsg = "";
-        StateHasChanged();
-    }
-    void OnRefresh()
-    {        
-        navMan.NavigateTo($"/{mySignup?.Id}", true);
-    }
-    
-
-    private async Task DownloadFileFromStream()
-    {
-        try 
-        {   
-            using (FileStream fsSource = new FileStream($"/home/pi/Videos/{mySignup?.Id}.mp4",
-                FileMode.Open, FileAccess.Read))
-            {
-                var fileName = $"{mySignup?.Id}.mp4";
-
-                using var streamRef = new DotNetStreamReference(stream: fsSource);
-
-                await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
-                errMsg = "Download Complete";
-                StateHasChanged();
-            }
-        } catch (Exception ex)
-        {
-            errMsg = ex.Message;
-            StateHasChanged();
-        }
-    }
-}

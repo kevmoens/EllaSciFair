@@ -13,5 +13,6 @@ namespace EllaSciFair.Data
         [Required]
         public string? Email { get; set; }
         public string? FileName { get; set; }
+        public bool IsPublic { get; set; } = false;
     }
 }
